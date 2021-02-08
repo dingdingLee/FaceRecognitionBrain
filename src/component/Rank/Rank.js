@@ -1,13 +1,13 @@
 import React from 'react';
 
-const Rank = () => {
+const Rank = ({name, entries}) => {
     return (
         <div>
             <div className='white f3'>
-                {'dingdingLee, 당신의 현재 랭크는...'}
+                {'${name}, 당신의 현재 랭크는...'}
             </div>
             <div className='white f1'>
-                {'#5'}
+                {entries}
             </div>
         </div>
         

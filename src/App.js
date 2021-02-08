@@ -9,8 +9,7 @@ import Logo from './component/Logo/Logo';
 import ImageLinkForm from './component/ImageLinkForm/ImageLinkForm';
 import Rank from './component/Rank/Rank';
 import './App.css';
-import { render } from '@testing-library/react';
-import { response } from 'express';
+
 
 const app = new Clarifai.App({
   apiKey: '0cb257a6be3545228c4f204683ea846b'
@@ -36,11 +35,26 @@ class App extends Component  {
       imageUrl:'',
       box:{},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entires: 0,
+        joined: ''
+      }
     }
   }
 
-  
+  loadUser = (data) => {
+    this.setState({
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      entires: data.entires,
+      joined: data.joined
+    })
+  }
 
   calculateFaceLocation = (data) =>{
     const clarifaFace =  data.outputs[0].data.regions[0].region_info.bounding_box;
@@ -71,6 +85,20 @@ class App extends Component  {
         this.state.input   
       )
       .then(response => {
+        if(response){
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+            id: this.state.user.id
+          })
+          })
+        
+        .then(response => response.json())
+        .then(count =>{
+            this.setState(Object.assign(this.state.user, {entires:count}))
+        } )
+        }
         this.displayFaceBox(this.calculateFaceLocation(response))
       })
       .catch(err => {
@@ -104,7 +132,7 @@ class App extends Component  {
         : (
             this.state.route === 'signin'
             ? <SignIn onRouteChange={this.onRouteChange}/>
-            : <Register onRouteChange={this.onRouteChange}/>
+            : <Register loadUser={this.loadUser}  onRouteChange={this.onRouteChange}/>
         )
   }
     </div>
